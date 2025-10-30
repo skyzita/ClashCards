@@ -37,27 +37,52 @@ public class App extends Application {
 
         Tab colecaoTab = new Tab("Colecao", listaCartas);
         colecaoTab.setClosable(false);
+        tabPane.getTabs().addAll(colecaoTab);
 
         //Cadastro
         VBox cadastroLayout = new VBox(10);
         cadastroLayout.setPadding(new javafx.geometry.Insets(10));
+        ScrollPane scrollCadastro = new ScrollPane();
+        scrollCadastro.setContent(cadastroLayout);
         cadastroLayout.getChildren().add(new Label("Cadastro de Cartas"));
         cadastroLayout.getChildren().add(new Separator());
 
         cadastroLayout.getChildren().add(new Label("Nome da Carta"));
         cadastroLayout.getChildren().add(new TextField());
+        cadastroLayout.getChildren().add(new Label("Tipo:"));
+        cadastroLayout.getChildren().add(new ChoiceBox<>());
         cadastroLayout.getChildren().add(new Label("Nível:"));
+        cadastroLayout.getChildren().add(new TextField());
+        cadastroLayout.getChildren().add(new Label("Custo de elixir:"));
+        cadastroLayout.getChildren().add(new TextField());
+        cadastroLayout.getChildren().add(new Label("Raridade:"));
+        cadastroLayout.getChildren().add(new ChoiceBox<>());
+        cadastroLayout.getChildren().add(new Label("Velocidade:"));
+        cadastroLayout.getChildren().add(new ChoiceBox<>());
+        cadastroLayout.getChildren().add(new Label("Dano:"));
+        cadastroLayout.getChildren().add(new TextField());
+        cadastroLayout.getChildren().add(new Label("Dano por segundo:"));
+        cadastroLayout.getChildren().add(new TextField());
+        cadastroLayout.getChildren().add(new Label("Pontos de vida:"));
+        cadastroLayout.getChildren().add(new TextField());
+        cadastroLayout.getChildren().add(new Label("Alvos:"));
+        cadastroLayout.getChildren().add(new ChoiceBox<>());
+        cadastroLayout.getChildren().add(new Label("Alcance:"));
+        cadastroLayout.getChildren().add(new TextField());
+        cadastroLayout.getChildren().add(new Label("Velocidade de impacto:"));
         cadastroLayout.getChildren().add(new TextField());
         cadastroLayout.getChildren().add(new Button("Salvar Cadastro"));
 
-        Tab cartasTab = new Tab("Cartas", cadastroLayout);
+        Tab cartasTab = new Tab("Cartas", scrollCadastro);
         cartasTab.setClosable(false);
+        tabPane.getTabs().addAll(cartasTab);
 
         //Decks
         VBox decksLayout = new VBox(10, new Label("Cadastro de Decks"));
         decksLayout.setPadding(new javafx.geometry.Insets(10));
         Tab decksTab = new Tab("Decks", decksLayout);
         decksTab.setClosable(false);
+        tabPane.getTabs().addAll(decksTab);
 
         Scene scene = new Scene(tabPane, 400, 600);
         stage.setTitle("Clash Cards");
