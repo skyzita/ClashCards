@@ -1,10 +1,9 @@
 package data;
 
-import core.Carta;
-import core.Raridade;
-import core.TipoCarta;
+import core.*;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,9 +40,9 @@ public class GerenciadorDeDados {
                         carta.setDano(Integer.parseInt(dados[6].trim()));
                         carta.setDanoPorSegundo(Double.parseDouble(dados[7].trim()));
                         carta.setPontosVida(Integer.parseInt(dados[8].trim()));
-                        carta.setAlvos(Integer.parseInt(dados[9].trim()));
+                        carta.setAlvos(Alvos.valueOf(dados[3].toUpperCase()));
                         carta.setAlcance(Double.parseDouble(dados[10].trim()));
-                        carta.setVelocidade(dados[11].trim());
+                        carta.setVelocidade(Velocidade.valueOf(dados[11].toUpperCase()));
                         carta.setVelocidadeImpacto(Double.parseDouble(dados[12].trim()));
 
                         cartas.add(carta);
@@ -76,4 +75,44 @@ public class GerenciadorDeDados {
         }
         return todasAsCartas;
     }
+
+    public void salvarCartasEmArquivo(List<Carta> cartas, Path caminhoDoArquivo ) {
+        String cabecalho = "Nome;Nivel;CustoElixir;Tipo;Raridade;Imagem;Dano;DanoPorSegundo;PontosVida;Alvos;Alcance;Velocidade;VelocidadeImpacto";
+
+        try (BufferedWriter bw = Files.newBufferedWriter(caminhoDoArquivo)) {
+
+            bw.write(cabecalho);
+            bw.newLine();
+
+            for (Carta carta : cartas) {
+
+                String[] dados = {
+                    carta.getNome(),
+                    String.valueOf(carta.getNivel()),
+                    String.valueOf(carta.getcustoElixir()),
+                    carta.getTipo().toString(),
+                    carta.getRaridade().toString(),
+                    "", //Imagem
+                    String.valueOf(carta.getDano()),
+                    String.valueOf(carta.getDanoPorSegundo()),
+                    String.valueOf(carta.getPontosVida()),
+                    carta.getAlvos().toString(),
+                    String.valueOf(carta.getAlcance()),
+                    carta.getVelocidade().toString(),
+                    String.valueOf(carta.getVelocidadeImpacto())
+                };
+
+                String linha = String.join(DELIMITADOR, dados);
+
+                bw.write(linha);
+                bw.newLine();
+            }
+        }
+
+        catch (IOException e) {
+            System.err.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
+        }
+    }
 }
+
+

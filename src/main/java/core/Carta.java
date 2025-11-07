@@ -8,18 +8,18 @@ public class Carta {
     private int nivel;
     private int custoElixir;
     private Raridade raridade;
-    private String velocidade;
+    private Velocidade velocidade;
     private Image imagem;
     private int dano;
     private double danoPorSegundo;
     private int pontosVida;
-    private int alvos;
+    private Alvos alvos;
     private double alcance;
     private double velocidadeImpacto;
 
 
     //Construtor Principal
-    public Carta(String nome, int nivel, int custoElixir, TipoCarta tipo, Raridade raridade, Image imagem, double dano, double danoPorSegundo, int pontosVida, int alvos, double alcance, String velocidade, double velocidadeDeImpacto){
+    public Carta(String nome, int nivel, int custoElixir, TipoCarta tipo, Raridade raridade, Image imagem, double dano, double danoPorSegundo, int pontosVida, Alvos alvos, double alcance, Velocidade velocidade, double velocidadeDeImpacto){
         this.nome = nome;
         this.tipo = tipo;
         this.nivel = custoElixir;
@@ -77,10 +77,10 @@ public class Carta {
         this.raridade = raridade;
     }
 //VELOCIDADE
-    public String getVelocidade() {
-        return this.velocidade;
+    public Velocidade getVelocidade() {
+        return velocidade;
     }
-    public void setVelocidade(String velocidade) {
+    public void setVelocidade(Velocidade velocidade) {
         this.velocidade = velocidade;
     }
 //IMAGEM
@@ -112,10 +112,10 @@ public class Carta {
         this.pontosVida = pontosVida;
     }
 //ALVOS
-    public int getAlvos() {
+    public Alvos getAlvos() {
         return this.alvos;
     }
-    public void setAlvos(int alvos) {
+    public void setAlvos(Alvos alvos) {
         this.alvos = alvos;
     }
 //ALCANCE
