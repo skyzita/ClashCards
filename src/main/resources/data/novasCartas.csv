@@ -1,0 +1,4 @@
+Nome;Nivel;CustoElixir;Tipo;Raridade;Imagem;Dano;DanoPorSegundo;PontosVida;Alvos;Alcance;Velocidade;VelocidadeImpacto
+Gigante;6;5;TROPA;RARA;;200;1.6;3500;CONSTRUCOES;5.5;MEDIA;1.2
+Mini P.E.K.K.A;5;4;TROPA;RARA;;429;268.0;817;TERRESTRES;0.8;RAPIDA;1.6
+Goblins Lanceiros;11;2;TROPA;COMUM;;81;47.0;133;AEREOS_E_TERRESTRES;5.0;MUITO_RAPIDA;1.7

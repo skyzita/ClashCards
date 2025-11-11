@@ -12,19 +12,31 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class GerenciadorDeDados {
 
     private static final String DELIMITADOR = ";";
 
     public List<Carta> lerCartasDoArquivo(Path caminhoDoArquivo){
         List<Carta> cartas = new ArrayList<>();
+
+        String linha;
+        String dados[];
+
         try (BufferedReader br = Files.newBufferedReader(caminhoDoArquivo)){
 
             br.readLine();
 
-            String linha;
+
             while ((linha = br.readLine()) != null) {
-                String[] dados = linha.split(DELIMITADOR);
+
+                linha = linha.trim();
+                if(linha.startsWith("\"") && linha.endsWith("\"")){
+                    linha = linha.substring(1, linha.length() - 1);
+                }
+
+
+                    dados = linha.split(DELIMITADOR, -1);
 
                 if (dados.length == 13) {
                     try{
@@ -32,18 +44,21 @@ public class GerenciadorDeDados {
                         carta.setNome(dados[0].trim());
                         carta.setNivel(Integer.parseInt(dados[1].trim()));
                         carta.setcustoElixir(Integer.parseInt(dados[2].trim()));
+
                         carta.setTipo(TipoCarta.valueOf(dados[3].toUpperCase()));
                         carta.setRaridade(Raridade.valueOf(dados[4].toUpperCase()));
                         //Mudar quando começar a trabalhar com INTERMEDIARIO
                         //Nivel BASICO não mexe com Imagens ainda
                         carta.setImagem(null);
                         carta.setDano(Integer.parseInt(dados[6].trim()));
-                        carta.setDanoPorSegundo(Double.parseDouble(dados[7].trim()));
+                        carta.setDanoPorSegundo(Double.parseDouble(dados[7].trim().replace(',', '.')));
                         carta.setPontosVida(Integer.parseInt(dados[8].trim()));
-                        carta.setAlvos(Alvos.valueOf(dados[3].toUpperCase()));
-                        carta.setAlcance(Double.parseDouble(dados[10].trim()));
+
+                        carta.setAlvos(Alvos.valueOf(dados[9].toUpperCase()));
+                        carta.setAlcance(Double.parseDouble(dados[10].trim().replace(',', '.')));
                         carta.setVelocidade(Velocidade.valueOf(dados[11].toUpperCase()));
-                        carta.setVelocidadeImpacto(Double.parseDouble(dados[12].trim()));
+                        carta.setVelocidadeImpacto(Double.parseDouble(dados[12].trim().replace(',', '.')));
+                        carta.setVelocidadeImpacto(Double.parseDouble(dados[12].trim().replace(',', '.')));
 
                         cartas.add(carta);
                     } catch (NumberFormatException e) {
