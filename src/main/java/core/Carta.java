@@ -11,7 +11,7 @@ public class Carta {
     private Velocidade velocidade;
     private Image imagem;
     private int dano;
-    private double danoPorSegundo;
+    private int danoPorSegundo;
     private int pontosVida;
     private Alvos alvos;
     private double alcance;
@@ -19,20 +19,20 @@ public class Carta {
 
 
     //Construtor Principal
-    public Carta(String nome, int nivel, int custoElixir, TipoCarta tipo, Raridade raridade, Image imagem, double dano, double danoPorSegundo, int pontosVida, Alvos alvos, double alcance, Velocidade velocidade, double velocidadeDeImpacto){
+    public Carta(String nome, int nivel, int custoElixir, TipoCarta tipo, Raridade raridade, Image imagem, int dano, int danoPorSegundo, int pontosVida, Alvos alvos, double alcance, Velocidade velocidade, double velocidadeDeImpacto){
         this.nome = nome;
         this.tipo = tipo;
-        this.nivel = custoElixir;
-        this.custoElixir = custoElixir;
+        this.setNivel(nivel);
+        this.setcustoElixir(custoElixir);
         this.raridade = raridade;
         this.velocidade = velocidade;
         this.imagem = imagem;
-        this.dano = (int) dano;
-        this.danoPorSegundo = danoPorSegundo;
-        this.pontosVida = pontosVida;
+        this.setDano(dano);
+        this.setDanoPorSegundo(danoPorSegundo);
+        this.setPontosVida(pontosVida);
         this.alvos = alvos;
-        this.alcance = alcance;
-        this.velocidadeImpacto = velocidadeDeImpacto;
+        this.setAlcance(alcance);
+        this.setVelocidadeImpacto(velocidadeImpacto);
     }
 
     //Construtor Vazio para os .CSV
@@ -60,14 +60,26 @@ public class Carta {
         return this.nivel;
     }
     public void setNivel(int nivel) {
-        this.nivel = nivel;
+        if (nivel > 15) {
+            this.nivel = 15;
+        } else if (nivel < 1) {
+            this.nivel = 1;
+        } else {
+            this.nivel = nivel;
+        }
     }
 //CUSTO
     public int getcustoElixir() {
         return this.custoElixir;
     }
     public void setcustoElixir(int custoElixir) {
-        this.custoElixir = custoElixir;
+        if (custoElixir > 10) {
+            this.custoElixir = 10;
+        } else if (custoElixir < 1) {
+            this.custoElixir = 1;
+        } else {
+            this.custoElixir = custoElixir;
+        }
     }
 //RARIDADE
     public Raridade getRaridade() {
@@ -95,21 +107,33 @@ public class Carta {
         return this.dano;
     }
     public void setDano(int dano) {
+        if(dano < 0) {
+            this.dano = 0;
+        } else {
         this.dano = dano;
+        }
     }
 //DPS
     public double getDanoPorSegundo() {
         return this.danoPorSegundo;
     }
-    public void setDanoPorSegundo(double danoPorSegundo) {
-        this.danoPorSegundo = danoPorSegundo;
+    public void setDanoPorSegundo(int danoPorSegundo) {
+        if(danoPorSegundo < 0) {
+            this.danoPorSegundo = 0;
+        } else {
+            this.danoPorSegundo = danoPorSegundo;
+        }
     }
 //HP
     public int getPontosVida() {
         return this.pontosVida;
     }
     public void setPontosVida(int pontosVida) {
-        this.pontosVida = pontosVida;
+        if(pontosVida < 1) {
+            this.pontosVida = 1;
+        } else {
+            this.pontosVida = pontosVida;
+        }
     }
 //ALVOS
     public Alvos getAlvos() {
@@ -123,14 +147,22 @@ public class Carta {
         return this.alcance;
     }
     public void setAlcance(double alcance) {
-        this.alcance = alcance;
+        if(alcance < 0) {
+            this.alcance = 0;
+        } else {
+            this.alcance = alcance;
+        }
     }
 //VELOCIDADE IMPACTO
     public double getVelocidadeImpacto() {
         return this.velocidadeImpacto;
     }
     public void setVelocidadeImpacto(double velocidadeImpacto) {
-        this.velocidadeImpacto = velocidadeImpacto;
+        if(velocidadeImpacto < 0) {
+            this.velocidadeImpacto = 0;
+        } else {
+            this.velocidadeImpacto = velocidadeImpacto;
+        }
     }
 
     // Checar por duplicatas

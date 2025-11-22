@@ -51,7 +51,7 @@ public class GerenciadorDeDados {
                         //Nivel BASICO não mexe com Imagens ainda
                         carta.setImagem(null);
                         carta.setDano(Integer.parseInt(dados[6].trim()));
-                        carta.setDanoPorSegundo(Double.parseDouble(dados[7].trim().replace(',', '.')));
+                        carta.setDanoPorSegundo(Integer.parseInt(dados[7].trim().replace(',', '.')));
                         carta.setPontosVida(Integer.parseInt(dados[8].trim()));
 
                         carta.setAlvos(Alvos.valueOf(dados[9].toUpperCase()));

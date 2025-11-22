@@ -77,7 +77,7 @@ public class App extends Application {
                         novaCarta.setRaridade(core.Raridade.valueOf(raridadeChoice.getValue()));
                         novaCarta.setVelocidade(core.Velocidade.valueOf(velocidadeChoice.getValue()));
                         novaCarta.setDano(Integer.parseInt(dano.getText().trim()));
-                        novaCarta.setDanoPorSegundo(Double.parseDouble(danoPorSegundo.getText().trim()));
+                        novaCarta.setDanoPorSegundo(Integer.parseInt(danoPorSegundo.getText().trim()));
                         novaCarta.setPontosVida(Integer.parseInt(pontosVida.getText().trim()));
                         novaCarta.setAlvos(core.Alvos.valueOf(alvosChoice.getValue()));
                         novaCarta.setAlcance(Double.parseDouble(alcance.getText().trim()));
