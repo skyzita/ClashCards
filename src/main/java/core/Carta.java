@@ -9,17 +9,20 @@ public class Carta {
     private int custoElixir;
     private Raridade raridade;
     private Velocidade velocidade;
-    private Image imagem;
+    private javafx.scene.image.Image imagem;
     private int dano;
-    private int danoPorSegundo;
+    private double danoPorSegundo;
     private int pontosVida;
     private Alvos alvos;
     private double alcance;
     private double velocidadeImpacto;
 
+    private String nomeArquivoImagem;
+
+
 
     //Construtor Principal
-    public Carta(String nome, int nivel, int custoElixir, TipoCarta tipo, Raridade raridade, Image imagem, int dano, int danoPorSegundo, int pontosVida, Alvos alvos, double alcance, Velocidade velocidade, double velocidadeDeImpacto){
+    public Carta(String nome, int nivel, int custoElixir, TipoCarta tipo, Raridade raridade, javafx.scene.image.Image imagem, int dano, int danoPorSegundo, int pontosVida, Alvos alvos, double alcance, Velocidade velocidade, double velocidadeDeImpacto){
         this.nome = nome;
         this.tipo = tipo;
         this.setNivel(nivel);
@@ -96,10 +99,10 @@ public class Carta {
         this.velocidade = velocidade;
     }
 //IMAGEM
-    public Image getImagem() {
+    public javafx.scene.image.Image getImagem() {
         return this.imagem;
     }
-    public void setImagem(Image imagem) {
+    public void setImagem(javafx.scene.image.Image imagem) {
         this.imagem = imagem;
     }
 //DANO
@@ -117,7 +120,7 @@ public class Carta {
     public double getDanoPorSegundo() {
         return this.danoPorSegundo;
     }
-    public void setDanoPorSegundo(int danoPorSegundo) {
+    public void setDanoPorSegundo(double danoPorSegundo) {
         if(danoPorSegundo < 0) {
             this.danoPorSegundo = 0;
         } else {
@@ -163,6 +166,14 @@ public class Carta {
         } else {
             this.velocidadeImpacto = velocidadeImpacto;
         }
+    }
+
+    public String getNomeArquivoImagem() {
+        return nomeArquivoImagem;
+    }
+
+    public void setNomeArquivoImagem(String nomeArquivoImagem) {
+        this.nomeArquivoImagem = nomeArquivoImagem;
     }
 
     // Checar por duplicatas

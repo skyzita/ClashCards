@@ -42,6 +42,25 @@ public class GerenciadorDeDados {
                     try{
                         Carta carta = new Carta();
                         carta.setNome(dados[0].trim());
+
+                    String imagePath = dados[5].trim();
+                    if(!imagePath.isEmpty()){
+                        try{
+                            String resourcePath = "/images/" + imagePath;
+                            javafx.scene.image.Image image = new javafx.scene.image.Image(getClass().getResourceAsStream(resourcePath));
+                            carta.setImagem(image);
+
+                            carta.setNomeArquivoImagem(imagePath);
+                        } catch (Exception e){
+                            System.err.println("Aviso: Não foi possível carregar a imagem para a carta '" + carta.getNome() + "'. Caminho esperado: /images/" + imagePath);
+                            carta.setImagem(null);
+                            carta.setNomeArquivoImagem("");
+                        }
+                    }
+                    else{
+                        carta.setImagem(null);
+                        carta.setNomeArquivoImagem("");
+                    }
                         carta.setNivel(Integer.parseInt(dados[1].trim()));
                         carta.setcustoElixir(Integer.parseInt(dados[2].trim()));
 
@@ -49,15 +68,14 @@ public class GerenciadorDeDados {
                         carta.setRaridade(Raridade.valueOf(dados[4].toUpperCase()));
                         //Mudar quando começar a trabalhar com INTERMEDIARIO
                         //Nivel BASICO não mexe com Imagens ainda
-                        carta.setImagem(null);
+                        //carta.setImagem(null);
                         carta.setDano(Integer.parseInt(dados[6].trim()));
-                        carta.setDanoPorSegundo(Integer.parseInt(dados[7].trim().replace(',', '.')));
+                        carta.setDanoPorSegundo(Double.parseDouble(dados[7].trim().replace(',', '.')));
                         carta.setPontosVida(Integer.parseInt(dados[8].trim()));
 
                         carta.setAlvos(Alvos.valueOf(dados[9].toUpperCase()));
                         carta.setAlcance(Double.parseDouble(dados[10].trim().replace(',', '.')));
                         carta.setVelocidade(Velocidade.valueOf(dados[11].toUpperCase()));
-                        carta.setVelocidadeImpacto(Double.parseDouble(dados[12].trim().replace(',', '.')));
                         carta.setVelocidadeImpacto(Double.parseDouble(dados[12].trim().replace(',', '.')));
 
                         cartas.add(carta);
@@ -99,7 +117,13 @@ public class GerenciadorDeDados {
             bw.write(cabecalho);
             bw.newLine();
 
+
             for (Carta carta : cartas) {
+        String imagemNome = carta.getNomeArquivoImagem() != null ? carta.getNomeArquivoImagem().trim() : "";
+        if(carta.getImagem() != null && carta.getImagem().getUrl() != null){
+            String url = carta.getImagem().getUrl();
+            imagemNome = url.substring(url.lastIndexOf('/') + 1);
+        }
 
                 String[] dados = {
                     carta.getNome(),
@@ -107,7 +131,7 @@ public class GerenciadorDeDados {
                     String.valueOf(carta.getcustoElixir()),
                     carta.getTipo().toString(),
                     carta.getRaridade().toString(),
-                    "", //Imagem
+                    imagemNome, //Imagem
                     String.valueOf(carta.getDano()),
                     String.valueOf(carta.getDanoPorSegundo()),
                     String.valueOf(carta.getPontosVida()),
