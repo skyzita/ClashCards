@@ -329,6 +329,12 @@ public class App extends Application {
         decksTab.setClosable(false);
         tabPane.getTabs().addAll(decksTab);
 
+        VBox creditosLayout = new VBox(10, new Label("Créditos"));
+        creditosLayout.setPadding(new Insets(10));
+        Tab creditosTab = new Tab("Creditos", creditosLayout);
+        creditosTab.setClosable(false);
+        tabPane.getTabs().addAll(creditosTab);
+
         Scene scene = new Scene(tabPane, 400, 600);
         stage.setTitle("Clash Cards");
         stage.setScene(scene);
@@ -471,9 +477,7 @@ public class App extends Application {
                 System.err.println("Erro: " + ex.getMessage());
             }
         });
-
     }
-
     public static void main(String[] args) {
         launch(args);}
 }
