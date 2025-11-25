@@ -1,4 +1,0 @@
-Nome;Nivel;CustoElixir;Tipo;Raridade;Imagem;Dano;DanoPorSegundo;PontosVida;Alvos;Alcance;Velocidade;VelocidadeImpacto
-Gigante;15;5;TROPA;COMUM;Card_Giant.png;56;45.0;123;CONSTRUCOES;0.0;LENTA;4.0
-Arqueiras;1;3;TROPA;COMUM;Archer_card_frame_alpha.png;23;43.0;123;AEREOS_E_TERRESTRES;6.0;MEDIA;34.0
-Cavaleiro;5;4;TROPA;RARA;Card_Knight.png;32;31.0;333;TERRESTRES;0.0;MEDIA;23.0

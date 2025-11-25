@@ -4,13 +4,14 @@ import core.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class GerenciadorDeDados {
@@ -150,6 +151,95 @@ public class GerenciadorDeDados {
 
         catch (IOException e) {
             System.err.println("Erro ao escrever o arquivo CSV: " + e.getMessage());
+        }
+    }
+
+    public Deck lerDeckDoArquivo(Path caminhoDoArquivo, List<Carta> todasAsCartas){
+        Deck deck = new Deck();
+        String linha;
+
+        String nomeArquivo = caminhoDoArquivo.getFileName().toString();
+        String nomeDeck = nomeArquivo.substring(0, nomeArquivo.lastIndexOf('.')).replace("_", " ");
+        deck.setNome(nomeDeck);
+
+        try(BufferedReader br = Files.newBufferedReader(caminhoDoArquivo)){
+
+
+            if((linha = br.readLine()) != null) {
+                linha = linha.trim();
+
+
+                if(linha.startsWith("\"") && linha.endsWith("\"")){
+                    linha = linha.substring(1, linha.length() - 1);
+                }
+
+                String[] nomesCartas = linha.split(DELIMITADOR, -1);
+
+
+                if(nomesCartas.length == 8) {
+                    List<Carta> cartasDoDeck = Arrays.stream(nomesCartas)
+                            .map(nome -> todasAsCartas.stream()
+                                    .filter(c -> c.getNome().equals(nome.trim()))
+                                    .findFirst()
+                                    .orElse(null))
+                            .filter(java.util.Objects::nonNull)
+                            .collect(Collectors.toList());
+
+                    if (cartasDoDeck.size() == 8) {
+                        deck.setCartas(cartasDoDeck);
+                        return deck;
+                    } else {
+                        System.err.println("Erro: Não foi possível encontrar todas as 8 cartas referenciadas no Deck: " + nomeDeck);
+                    }
+                } else {
+                    System.err.println("Erro: Arquivo do Deck '" + nomeDeck + "' não têm 8 campos de cartas.  Linha: "+ linha);
+                }
+            }
+        }
+        catch (IOException e) {
+        System.err.println("Erro ao ler o arquivo do Deck: " + nomeDeck + ". Erro: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public List<Deck> lerDeckDaPasta(String caminhoPasta, List<Carta> todasAsCartas){
+        List<Deck> todosOsDecks = new ArrayList<>();
+        try {
+            Files.walk(Paths.get(caminhoPasta), 1)
+                    .filter(path -> path.toString().endsWith(".csv"))
+                    .forEach(path -> {
+                        Deck deck = lerDeckDoArquivo(path, todasAsCartas);
+                        if(deck != null){
+                            todosOsDecks.add(deck);
+                        }
+                    });
+        } catch (IOException e) {
+            System.err.println("Erro ao ler a pasta de decks: " + e.getMessage());
+        }
+         return todosOsDecks;
+        }
+
+
+        public void salvarDeckEmArquivo(Deck deck, Path caminhoPasta){
+        String nomeArquivo = deck.getNome().replaceAll("\\s", "_") + ".csv";
+        Path caminhoDoArquivo = caminhoPasta.resolve(nomeArquivo);
+
+        String linha  = deck.getCartas().stream()
+                .limit(8)
+                .map(Carta::getNome)
+                .collect(Collectors.joining(DELIMITADOR));
+
+        try{
+            if(!Files.exists(caminhoPasta)){
+                Files.createDirectories(caminhoPasta);
+            }
+
+            try(BufferedWriter bw = Files.newBufferedWriter(caminhoDoArquivo)) {
+                bw.write(linha);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Erro ao salvar o Deck '" + deck.getNome() + "': " + e.getMessage());
         }
     }
 }

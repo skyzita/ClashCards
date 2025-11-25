@@ -1,5 +1,4 @@
 package ui;
-
 import core.*;
 import data.GerenciadorDeDados;
 import javafx.application.Application;
@@ -11,22 +10,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.w3c.dom.Text;
-
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -39,15 +33,25 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
 
-        final String caminhoPasta = "src/main/resources/data";
+        final String caminhoPasta = "src/main/resources/data/cartas";
         final Path caminhoDoArquivo = Paths.get(caminhoPasta, "novasCartas.csv");
+
+        final String caminhoPastaDecks = "src/main/resources/data/decks";
 
         //Carregar CSV
         GerenciadorDeDados ger = new GerenciadorDeDados();
         //Caminho dos Arquivos
-        List<Carta> cartasCadastradas = ger.lerCartasDaPasta("src/main/resources/data");
+        List<Carta> cartasCadastradas = ger.lerCartasDaPasta("src/main/resources/data/cartas");
         final AtomicReference<File> selectedFileRef = new AtomicReference<>();
         TabPane tabPane = new TabPane();
+
+        final List<Carta> todasCartas = cartasCadastradas;
+
+        List<Deck> decksCadastrados = ger.lerDeckDaPasta(caminhoPastaDecks, todasCartas);
+
+        ListView<String> listaDecks = new ListView<>();
+
+        listaDecks.getItems().addAll(decksCadastrados.stream().map(Deck::getNome).collect(Collectors.toList()));
 
 
 
@@ -211,7 +215,7 @@ public class App extends Application {
         final Button salvarButton = new Button("Salvar Cadastro");
 
 
-        final Path imagensPath = Paths.get(caminhoPasta, ".." ,"images").normalize();
+        final Path imagensPath = Paths.get("src" , "main", "resources", "images").normalize();
 
 
         salvarButton.setOnAction(e -> {
@@ -240,12 +244,17 @@ public class App extends Application {
                             if (!java.nio.file.Files.exists(imagensPath)) {
                                 java.nio.file.Files.createDirectories(imagensPath);
                             }
-
-                            java.nio.file.Files.copy(sourceFile.toPath(), destino, StandardCopyOption.REPLACE_EXISTING);
-
-                            javafx.scene.image.Image img = new javafx.scene.image.Image(destino.toString());
-                            novaCarta.setImagem(img);
-                            novaCarta.setNomeArquivoImagem(nomeArquivoImagem);
+                            try {
+                                String imageURL = destino.toUri().toURL().toExternalForm();
+                                javafx.scene.image.Image img = new javafx.scene.image.Image(imageURL);
+                                novaCarta.setImagem(img);
+                                novaCarta.setNomeArquivoImagem(nomeArquivoImagem);
+                            } catch (Exception urlEx) {
+                                System.err.println("Erro ao converter path da imagem para URL ou carregar imagem: " + urlEx.getMessage());
+                                // Se a imagem falhar, defina como null e continue (o erro será do tipo Invalid URL)
+                                novaCarta.setImagem(null);
+                                novaCarta.setNomeArquivoImagem("");
+                            }
                         }   else{
                             novaCarta.setImagem(null);
                         }
@@ -280,10 +289,13 @@ public class App extends Application {
                     } catch (IllegalArgumentException ex) {
                         // Tratamento específico para erros de Enum (Tipo/Raridade/Alvos/Velocidade)
                         System.err.println("Erro de enum (Tipo/Raridade) ao ler carta: " + nomeCarta + ". Erro:" + ex.getMessage());
+                        Alert alert = new Alert(Alert.AlertType.ERROR, "Erro de seleção (Tipo, Raridade, Alvos ou Velocidade): Verifique se todos os campos de escolha estão preenchidos.");
+                        alert.showAndWait();
                     } catch (Exception ex) {
                         // Tratamento para qualquer outro erro
                         System.err.println("Erro inesperado ao processar a carta: " + nomeCarta + ". Erro:" + ex.getMessage());
                     }
+
                 });
 
 
@@ -310,12 +322,12 @@ public class App extends Application {
         cadastroLayout.getChildren().add(new Label("Raridade:"));
         cadastroLayout.getChildren().add(raridadeChoice);
         cadastroLayout.getChildren().add(new Label("Velocidade:"));
+        cadastroLayout.getChildren().add(velocidadeChoice);
         cadastroLayout.getChildren().add(new Separator());
         cadastroLayout.getChildren().add(new Label("Caminho da Imagem"));
         cadastroLayout.getChildren().add(caminhoImagem);
         cadastroLayout.getChildren().add(selecionarImagemButton);
         cadastroLayout.getChildren().add(new Separator());
-        cadastroLayout.getChildren().add(velocidadeChoice);
         cadastroLayout.getChildren().add(new Label("Dano:"));
         cadastroLayout.getChildren().add(dano);
         cadastroLayout.getChildren().add(new Label("Dano por segundo:"));
@@ -336,13 +348,166 @@ public class App extends Application {
         tabPane.getTabs().addAll(cartasTab);
 
         //Decks
-        VBox decksLayout = new VBox(10, new Label("Cadastro de Decks"));
-        decksLayout.setPadding(new Insets(10));
-        Tab decksTab = new Tab("Decks", decksLayout);
+        TabPane decksTabPaneInterna = new TabPane();
+
+        final TextField nomeDeckField = new TextField();
+        final ListView<String> cartasDisponiveisView = new ListView<>();
+        final ListView<String> cartasDeckView = new ListView<>();
+        final Label contagemCartasLabel = new Label("Cartas no Deck: 0/8");
+        final Button salvarDeckButton = new Button("Salvar");
+        salvarDeckButton.setDisable(true);
+        Button limparFormularioButton = new Button("Limpar");
+
+        Label deckNomeLabel = new Label("Nome do Deck: ");
+        Label deckCartasLabel = new Label ("Cartas: ");
+        VBox deckCartasVBox = new VBox(5);
+        Button editarDeckButton = new Button("Editar");
+        editarDeckButton.setDisable(true);
+        editarDeckButton.setOnAction(e -> {
+            String nomeDeck = listaDecks.getSelectionModel().getSelectedItem();
+            Deck deckAEditar = decksCadastrados.stream()
+                    .filter(d -> d.getNome().equals(nomeDeck))
+                    .findFirst().orElse(null);
+            if( deckAEditar != null) {
+                preencherFormularioEdicao(deckAEditar, todasCartas, nomeDeckField, cartasDisponiveisView, cartasDeckView,  contagemCartasLabel, salvarDeckButton);
+                decksTabPaneInterna.getSelectionModel().select(1);
+            }
+        });
+
+        VBox deckDetailLayout = new VBox(10);
+        deckDetailLayout.getStyleClass().add("card-details-panel");
+        deckDetailLayout.setPadding(new Insets(10));
+        deckDetailLayout.getChildren().addAll(
+                new Label("Detalhes do Deck"),
+                new Separator(),
+                deckNomeLabel,
+                deckCartasLabel,
+                deckCartasVBox,
+                new Separator(),
+                editarDeckButton
+        );
+        ScrollPane scrollDeckDetails = new ScrollPane(deckDetailLayout);
+        scrollDeckDetails.setFitToWidth(true);
+
+        javafx.scene.layout.HBox listagemConteudo = new javafx.scene.layout.HBox(10,
+                new VBox(10, new Label("Decks Cadastrados"), listaDecks),
+                        scrollDeckDetails
+        );
+        listagemConteudo.setPadding(new Insets(10));
+        Tab listagemDecksTab = new Tab("Listagem/Detalhes", listagemConteudo);
+        listagemDecksTab.setClosable(false);
+
+
+        listaDecks.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if(newSelection != null) {
+                Deck deckSelecionado = decksCadastrados.stream()
+                        .filter(d -> d.getNome().equals(newSelection))
+                        .findFirst()
+                        .orElse(null);
+                if(deckSelecionado != null){
+                    deckNomeLabel.setText("Nome do Deck: " + deckSelecionado.getNome());
+                    deckCartasLabel.setText("Cartas: " + deckSelecionado.getCartas().size() + "/8");
+
+                    deckCartasVBox.getChildren().clear();
+                    deckSelecionado.getCartas().forEach(carta -> {
+                        deckCartasVBox.getChildren().add(new Label("- " + carta.getNome()));
+                    });
+
+                    editarDeckButton.setDisable(false);
+                }
+            } else{
+                deckNomeLabel.setText("Nome do Deck: ");
+                deckCartasLabel.setText("Cartas: ");
+                deckCartasVBox.getChildren().clear();
+                editarDeckButton.setDisable(true);
+            }
+        });
+
+
+
+        List<String> nomesTodasCartas = cartasCadastradas.stream().map(Carta::getNome).collect(Collectors.toList());
+        cartasDisponiveisView.getItems().addAll(nomesTodasCartas);
+
+
+        Button adicionarButton = new Button("Adicionar");
+        Button removerButton = new Button("Remover");
+
+        adicionarButton.setOnAction(e -> {
+            String cartaSelecionada = cartasDisponiveisView.getSelectionModel().getSelectedItem();
+            if(cartaSelecionada != null && cartasDeckView.getItems().size() < 8) {
+                cartasDeckView.getItems().add(cartaSelecionada);
+                cartasDisponiveisView.getItems().remove(cartaSelecionada);
+                contagemCartasLabel.setText("Cartas no Deck: " + cartasDeckView.getItems().size() + "/8");
+                salvarDeckButton.setDisable(cartasDeckView.getItems().size() != 8 || nomeDeckField.getText().isEmpty());
+            } else if (cartasDeckView.getItems().size() == 8) {
+                new Alert(Alert.AlertType.INFORMATION, "Um deck só pode ter 8 cartas!").showAndWait();
+            }
+        });
+
+        removerButton.setOnAction(e -> {
+            String cartaRemover = cartasDeckView.getSelectionModel().getSelectedItem();
+            if(cartaRemover != null) {
+                cartasDeckView.getItems().remove(cartaRemover);
+                cartasDisponiveisView.getItems().add(cartaRemover);
+                contagemCartasLabel.setText("Cartas no Deck: " + cartasDeckView.getItems().size() + "/8");
+                salvarDeckButton.setDisable(cartasDeckView.getItems().size() != 8 || nomeDeckField.getText().isEmpty());
+            }
+        });
+
+        nomeDeckField.textProperty().addListener((obs, oldVal, newVal) -> {
+            salvarDeckButton.setDisable(cartasDeckView.getItems().size() != 8 || newVal.trim().isEmpty());
+                });
+
+        limparFormularioButton.setOnAction(e -> {
+            limparFormulario(nomesTodasCartas, nomeDeckField, cartasDisponiveisView, cartasDeckView, contagemCartasLabel, salvarDeckButton);
+        });
+
+        VBox controlesCartas = new VBox(5, adicionarButton, removerButton);
+        controlesCartas.setPadding(new Insets(20,0,0,0));
+
+        javafx.scene.layout.HBox listasLayout = new javafx.scene.layout.HBox(10,
+                new VBox(5, new Label("Disponíveis:"), cartasDisponiveisView),
+                controlesCartas,
+                new VBox(5, new Label("No Deck:"), cartasDeckView)
+        );
+
+        VBox cadastroDecksLayout = new VBox(10,
+                new Label("Nome do Deck:"), nomeDeckField,
+                contagemCartasLabel,
+                listasLayout,
+                new Separator(),
+                new javafx.scene.layout.HBox(10, salvarDeckButton, limparFormularioButton)
+        );
+        cadastroDecksLayout.setPadding(new Insets(20));
+        ScrollPane scrollCadastroDeck = new ScrollPane(cadastroDecksLayout);
+        scrollCadastroDeck.setFitToWidth(true);
+        Tab cadastroDecksTab = new Tab("Cadastro", scrollCadastroDeck);
+        cadastroDecksTab.setOnSelectionChanged(event -> {
+            if (cadastroDecksTab.isSelected()) {
+                // Obter os nomes das cartas mais recentes da lista principal
+                List<String> nomesCartasAtuais = todasCartas.stream().map(Carta::getNome).collect(Collectors.toList());
+
+                // CORREÇÃO: Limpa o formulário e recarrega a lista de disponíveis
+                // Isso garante que cartas recém-criadas apareçam.
+                limparFormulario(nomesCartasAtuais, nomeDeckField, cartasDisponiveisView, cartasDeckView, contagemCartasLabel, salvarDeckButton);
+            }
+        });
+        cadastroDecksTab.setClosable(false);
+
+
+        salvarDeckButton.setOnAction(e -> {
+
+            salvarDeckouAtualizar(nomeDeckField.getText().trim(), cartasDeckView.getItems(), cartasCadastradas, decksCadastrados, listaDecks, ger, Paths.get(caminhoPastaDecks));
+            limparFormulario(nomesTodasCartas, nomeDeckField, cartasDisponiveisView, cartasDeckView, contagemCartasLabel, salvarDeckButton);
+            decksTabPaneInterna.getSelectionModel().select(0);
+        });
+
+        decksTabPaneInterna.getTabs().addAll(listagemDecksTab, cadastroDecksTab);
+        Tab decksTab = new Tab("Decks", decksTabPaneInterna);
         decksTab.setClosable(false);
         tabPane.getTabs().addAll(decksTab);
 
-        VBox creditosLayout = new VBox(10, new Label("Projeto de POO 2025\n" + "Instituto federal de São Paulo\n" + "- São João da Boa Vista\n" + "\n" + "Integrantes:\n" + "- João Paulo Diniz Oliveira Souza\n" + "Pedro Vinicius Lima dos Santos"));
+        VBox creditosLayout = new VBox(10, new Label("Projeto de POO 2025\n" + "Instituto federal de São Paulo\n" + "- São João da Boa Vista\n" + "\n" + "Integrantes:\n" + "- João Paulo Diniz Oliveira Souza\n" + "- Pedro Vinicius Lima dos Santos"));
         creditosLayout.setPadding(new Insets(10));
         Tab creditosTab = new Tab("Creditos", creditosLayout);
         creditosTab.setClosable(false);
@@ -359,6 +524,87 @@ public class App extends Application {
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
+    }
+
+    private void limparFormulario(List<String> nomesTodasCartas, TextField nomeDeckField,ListView<String> cartasDisponiveisView, ListView<String> cartasDeckView, Label contagemCartasLabel, Button salvarDeckButton){
+        nomeDeckField.clear();
+        nomeDeckField.setDisable(false);
+
+        cartasDeckView.getItems().clear();
+        cartasDisponiveisView.getItems().clear();
+        cartasDisponiveisView.getItems().addAll(nomesTodasCartas);
+
+        contagemCartasLabel.setText("Cartas no Deck: 0/8");
+        salvarDeckButton.setDisable(true);
+        salvarDeckButton.setText("Salvar");
+    }
+
+    private void preencherFormularioEdicao(Deck deck, List<Carta> todasCartas, TextField nomeDeckField, ListView<String> cartasDisponiveisView, ListView<String> cartasDeckView, Label contagemCartasLabel, Button salvarDeckButton){
+        nomeDeckField.setText(deck.getNome());
+        nomeDeckField.setDisable(true);
+
+        cartasDeckView.getItems().clear();
+        cartasDeckView.getItems().addAll(deck.getCartas().stream().map(Carta::getNome).collect(Collectors.toList()));
+
+        List<String> nomeTodasCartas = todasCartas.stream().map(Carta::getNome).collect(Collectors.toList());
+        cartasDisponiveisView.getItems().clear();
+        cartasDisponiveisView.getItems().addAll(nomeTodasCartas.stream()
+                .filter(nome -> !cartasDeckView.getItems().contains(nome))
+                .collect(Collectors.toList()));
+
+        contagemCartasLabel.setText("Cartas no Deck: " + cartasDeckView.getItems().size() + "/8");
+        salvarDeckButton.setText("Atualizar");
+        salvarDeckButton.setDisable(cartasDeckView.getItems().size() != 8);
+
+    }
+
+    private void salvarDeckouAtualizar(String nome, List<String> nomesCartasDeck, List<Carta> todasCartas, List<Deck> decksCadastrados, ListView<String> listaDecks, GerenciadorDeDados ger, Path caminhoPastaDecks){
+        boolean isEditing = decksCadastrados.stream().anyMatch(d -> d.getNome().equalsIgnoreCase(nome));
+
+        if(!isEditing && decksCadastrados.stream().anyMatch(d -> d.getNome().equalsIgnoreCase(nome))){
+            new Alert(Alert.AlertType.ERROR, "Já existe um Deck com este nome!").showAndWait();
+            return;
+        }
+
+        List<Carta> cartasDeck = nomesCartasDeck.stream()
+                .map(nomeCarta -> todasCartas.stream().filter(c -> c.getNome().equalsIgnoreCase(nomeCarta))
+                        .findFirst().orElse(null))
+                        .filter(java.util.Objects::nonNull)
+                        .collect(Collectors.toList());
+
+        if (cartasDeck.size() == 8) {
+
+            try{
+                Deck deck;
+                if(isEditing){
+                    deck = decksCadastrados.stream().filter(d -> d.getNome().equalsIgnoreCase(nome)).findFirst().get();
+                    deck.setCartas(cartasDeck);
+                } else{
+                    deck = new Deck();
+                    deck.setNome(nome);
+                    deck.setCartas(cartasDeck);
+                    decksCadastrados.add(deck);
+                }
+
+                ger.salvarDeckEmArquivo(deck, caminhoPastaDecks);
+
+                if(!isEditing){
+                    listaDecks.getItems().add(deck.getNome());
+                } else{
+                    listaDecks.getSelectionModel().select(deck.getNome());
+                }
+
+                Alert.AlertType type = isEditing ? Alert.AlertType.INFORMATION : Alert.AlertType.ERROR;
+                String msg = isEditing ? "Deck '" + nome + "' atualizado com sucesso!" : "Deck '" + nome + "' criado e salvo com sucesso!";
+                new Alert(type, msg).showAndWait();
+
+            } catch (Exception ex){
+                new Alert(Alert.AlertType.ERROR, "Erro ao salvar o Deck: " + ex.getMessage()).showAndWait();
+            }
+        } else{
+            new Alert(Alert.AlertType.ERROR, "O Deck deve ter exatamente 8 cartas!").showAndWait();
+
+        }
     }
 
     private void showEditCardPopup(Carta carta, List<Carta> cartasCadastradas, ListView<String> listaCartas, GerenciadorDeDados ger, Path caminhoDoArquivo, Stage primaryStage){
@@ -400,23 +646,7 @@ public class App extends Application {
                 carta.getImagem().getUrl().substring(carta.getImagem().getUrl().lastIndexOf("/") + 1) : "Nenhuma imagem selecionada";
         caminhoImagem.setText(nomeArquivoAtual);
 
-        final Button selecionarImagemButton = new Button("Selecionar Nova Imagem");
-
-        selecionarImagemButton.setOnAction(e -> {
-            FileChooser fileChooser = new FileChooser();
-
-            fileChooser.setTitle("Selecionar Nova Imagem");
-            fileChooser.getExtensionFilters().addAll(
-                    new FileChooser.ExtensionFilter("Arquivos de Imagem", "*.png", "*.jpg", "*.jpeg")
-            );
-
-            File file = fileChooser.showOpenDialog(primaryStage);
-
-            if (file != null) {
-                selectedFileRef.set(file);
-                caminhoImagem.setText(file.getName());
-            }
-        });
+        final Button selecionarImagemButton = getButton(primaryStage, selectedFileRef, caminhoImagem);
 
         Button salvarButton = new Button("Salvar Alterações");
 
@@ -497,6 +727,28 @@ public class App extends Application {
             }
         });
     }
+
+    private static Button getButton(Stage primaryStage, AtomicReference<File> selectedFileRef, TextField caminhoImagem) {
+        final Button selecionarImagemButton = new Button("Selecionar Nova Imagem");
+
+        selecionarImagemButton.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+
+            fileChooser.setTitle("Selecionar Nova Imagem");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Arquivos de Imagem", "*.png", "*.jpg", "*.jpeg")
+            );
+
+            File file = fileChooser.showOpenDialog(primaryStage);
+
+            if (file != null) {
+                selectedFileRef.set(file);
+                caminhoImagem.setText(file.getName());
+            }
+        });
+        return selecionarImagemButton;
+    }
+
     public static void main(String[] args) {
         launch(args);}
 }
