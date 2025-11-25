@@ -1,0 +1,133 @@
+.root {
+    -fx-background-color: #2C3E50;
+    fx-font-family: "Verdana", sans-serif;
+}
+
+.tab-pane .tab-header-area {
+    -fx-background-color: #2C3E50;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: #2C3E50;
+}
+
+.tab {
+    -fx-background-color: #4B607A;
+    -fx-border-color: #2C3E50;
+    -fx-border-width: 0 1px 0 0;
+}
+
+.tab:selected {
+    -fx-background-color: #34495E;
+}
+
+.tab .tab-label {
+    -fx-text-fill: #ECF0F1;
+    -fx-font-weight: bold;
+}
+
+.tab-pane .tab-content-area {
+    -fx-background-color: #34495E;
+    -fx-padding: 0;
+}
+
+.label {
+    -fx-text-fill: #ECF0F1;
+}
+
+.details-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFD700;
+}
+
+.vbox > .label:first-child {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFD700;
+}
+
+.button {
+    -fx-background-color:
+        linear-gradient(#F5D547, #FFD700),
+        linear-gradient(#34495E, #2C3E50);
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-background-radius: 5, 4, 3, 5;
+    -fx-padding: 5 15 5 15;
+    -fx-text-fill: #222;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(#FFD700, #F5D547);
+}
+
+.button:disabled {
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
+}
+
+.choice-box .menu-item .label {
+    -fx-text-fill: #222;
+}
+
+.choice-box .menu-item {
+    -fx-background-color: #ECF0F1;
+}
+
+.choice-box .menu-item:hover {
+    -fx-background-color: #FFD700;
+}
+
+.text-field, .choice-box {
+    -fx-background-color: #ECF0F1;
+    -fx-background-radius: 3;
+    -fx-border-color: #FFD700;
+    -fx-border-width: 1px;
+    -fx-border-radius: 3;
+    -fx-padding: 5;
+    -fx-text-fill: #222;
+}
+
+.text-input {
+    -fx-fill: #222;
+    -fx-text-fill: #222;
+}
+
+.list-view {
+    -fx-background-color: #34495E;
+    -fx-border-color: #FFD700;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ECF0F1;
+}
+
+.list-cell:filled:selected {
+    -fx-background-color: #5D7999;
+    -fx-text-fill: white;
+}
+.list-cell:filled:hover {
+    -fx-background-color: #4B607A;
+    -fx-text-fill: white;
+}
+
+.separator *.line {
+    -fx-border-color: #FFD700;
+    -fx-border-width: 1px;
+}
+
+.scroll-pane {
+    -fx-background-color: #34495E;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: #34495E;
+}
+
+.scroll-bar:vertical, .scroll-bar:horizontal {
+    -fx-background-color: #2C3E50;
+}

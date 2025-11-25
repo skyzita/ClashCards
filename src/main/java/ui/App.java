@@ -66,22 +66,35 @@ public class App extends Application {
         imagemCartaView.setFitWidth(120); // Ajuste o tamanho
         imagemCartaView.setFitHeight(150); // Ajuste o tamanho
         Label nomeLabel = new Label("Nome: ");
+        nomeLabel.getStyleClass().add("details-label");
         Label tipoLabel = new Label("Tipo: ");
+        tipoLabel.getStyleClass().add("details-label");
         Label nivelLabel = new Label("Nível: ");
+        nivelLabel.getStyleClass().add("details-label");
         Label custoElixirLabel = new Label("Custo de Elixir: ");
+        custoElixirLabel.getStyleClass().add("details-label");
         Label raridadeLabel = new Label("Raridade: ");
+        raridadeLabel.getStyleClass().add("details-label");
         Label velocidadeLabel = new Label("Velocidade: ");
+        velocidadeLabel.getStyleClass().add("details-label");
         Label danoLabel = new Label("Dano: ");
+        danoLabel.getStyleClass().add("details-label");
         Label dpsLabel = new Label("Dano por Segundo: ");
+        dpsLabel.getStyleClass().add("details-label");
         Label hpLabel = new Label("Pontos de Vida: ");
+        hpLabel.getStyleClass().add("details-label");
         Label alvosLabel = new Label("Alvos: ");
+        alvosLabel.getStyleClass().add("details-label");
         Label alcanceLabel = new Label("Alcance: ");
+        alcanceLabel.getStyleClass().add("details-label");
         Label impactoLabel = new Label("Velocidade de Impacto: ");
+        impactoLabel.getStyleClass().add("details-label");
 
         Button editarButton = new Button("Editar");
         editarButton.setDisable(true);
 
         VBox descricaoLayout = new VBox(10);
+        descricaoLayout.getStyleClass().add("card-details-panel");
         descricaoLayout.setPadding(new Insets(10));
         descricaoLayout.getChildren().addAll(
                 new Label("Detalhes da Carta"),
@@ -329,13 +342,19 @@ public class App extends Application {
         decksTab.setClosable(false);
         tabPane.getTabs().addAll(decksTab);
 
-        VBox creditosLayout = new VBox(10, new Label("Créditos"));
+        VBox creditosLayout = new VBox(10, new Label("Projeto de POO 2025\n" + "Instituto federal de São Paulo\n" + "- São João da Boa Vista\n" + "\n" + "Integrantes:\n" + "- João Paulo Diniz Oliveira Souza\n" + "Pedro Vinicius Lima dos Santos"));
         creditosLayout.setPadding(new Insets(10));
         Tab creditosTab = new Tab("Creditos", creditosLayout);
         creditosTab.setClosable(false);
         tabPane.getTabs().addAll(creditosTab);
 
         Scene scene = new Scene(tabPane, 400, 600);
+        try {
+            String cssPath = getClass().getResource("/clash-style.css").toExternalForm();
+            scene.getStylesheets().add(cssPath);
+        } catch (NullPointerException e) {
+            System.err.println("Erro: Arquivo CSS não encontrado");
+        }
         stage.setTitle("Clash Cards");
         stage.setScene(scene);
         stage.setResizable(false);
